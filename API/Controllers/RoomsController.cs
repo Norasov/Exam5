@@ -23,13 +23,13 @@ public class RoomsController(IRoomService service) : ControllerBase
         return await _service.AddRoomAsync(room);
     }
 
-    [HttpPut]
+    [HttpPut("{id:int}")]
     public async Task<ApiResponse<bool>> UpdateRoom(Room room)
     {
         return await _service.UpdateRoomAsync(room);
     }
 
-    [HttpPatch]
+    [HttpPatch("{id:int}/deactivate")]
     public async Task<ApiResponse<bool>> PatchRoom(Room room)
     {
         return await _service.PatchRoomAsync(room);

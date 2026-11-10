@@ -35,9 +35,8 @@ public class PatientService(IPatientRepository repository) : IPatientService
     {
         var patch = await _repository.PatchPatientAsync(patient);
         return patch == true
-        ? new ApiResponse<bool>(HttpStatusCode.OK, "Patient updated!", patch)
+        ? new ApiResponse<bool>(HttpStatusCode.OK, "Patient deactivated!", patch)
         : new ApiResponse<bool>(HttpStatusCode.NotFound, "Patient is not found!", false);
-
     }
 
     public async Task<ApiResponse<bool>> UpdatePatientAsync(Patient patient)
@@ -46,6 +45,5 @@ public class PatientService(IPatientRepository repository) : IPatientService
         return update == true
         ? new ApiResponse<bool>(HttpStatusCode.OK, " Patient updated!", update)
         : new ApiResponse<bool>(HttpStatusCode.NotFound, "Patient is not found!", false);
-
     }
 }

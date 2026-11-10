@@ -7,7 +7,7 @@ namespace Infrastructure.Repositories;
 
 public class RoomRepository(AppDbContext context):IRoomRepository
 {
-        private readonly AppDbContext _context = context;
+    private readonly AppDbContext _context = context;
     public async Task<bool> AddRoomAsync(Room room)
     {
         using var connection = _context.Connection();
@@ -15,13 +15,6 @@ public class RoomRepository(AppDbContext context):IRoomRepository
         (@name, @isactive)";
         var addRoom = await connection.ExecuteAsync(query, room);
         return addRoom > 0;
-    }
-
-    public async Task<Room?> GetRoomAsync(int id)
-    {
-        using var connection = _context.Connection();
-        var query = "select * from rooms where id = @id";
-        return await connection.QueryFirstOrDefaultAsync<Room>(query, new { id });
     }
 
     public async Task<List<Room>> GetRoomsAsync()
@@ -35,7 +28,7 @@ public class RoomRepository(AppDbContext context):IRoomRepository
     public async Task<bool> PatchRoomAsync(Room room)
     {
         using var connection = _context.Connection();
-        var query = @"update rooms set isactive = @isactive
+        var query = @"update rooms set isactive = false
         where id = @id";
 
         var patch = await connection.ExecuteAsync(query, room);

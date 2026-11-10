@@ -9,7 +9,7 @@ namespace API.Controllers;
 [Route("api/[controller]")]
 public class DoctorsController(IDoctorService service) : ControllerBase
 {
-        private readonly IDoctorService _service = service;
+    private readonly IDoctorService _service = service;
         
     [HttpGet]
     public async Task<ApiResponse<List<Doctor>>> GetDoctors()
@@ -29,13 +29,13 @@ public class DoctorsController(IDoctorService service) : ControllerBase
         return await _service.AddDoctorAsync(doctor);
     }
 
-    [HttpPut]
+    [HttpPut("{id:int}")]
     public async Task<ApiResponse<bool>> UpdatePatient(Doctor doctor)
     {
         return await _service.UpdateDoctorAsync(doctor);
     }
 
-    [HttpPatch]
+    [HttpPatch("{id:int}/deactivate")]
     public async Task<ApiResponse<bool>> PatchPatient(Doctor doctor)
     {
         return await _service.PatchDoctorAsync(doctor);

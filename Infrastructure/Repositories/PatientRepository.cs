@@ -2,6 +2,7 @@ using Dapper;
 using Domain.Interfaces;
 using Domain.Models;
 using Infrastructure.Data;
+using Npgsql;
 
 namespace Infrastructure.Repositories;
 
@@ -13,8 +14,15 @@ public class PatientRepository(AppDbContext context) : IPatientRepository
         using var connection = _context.Connection();
         var query = @"insert into patients(fullname, phone, birthdate, isactive) values
         (@fullname, @phone, @birthdate, @isactive)";
-        var addPatient = await connection.ExecuteAsync(query, patient);
-        return addPatient > 0;
+        try
+        {
+            var addPatient = await connection.ExecuteAsync(query, patient);
+            return addPatient > 0;
+        }
+        catch (PostgresException ex) when (ex.SqlState == PostgresErrorCodes.UniqueViolation)
+        {
+            return false;
+        }
     }
 
     public async Task<Patient?> GetPatientAsync(int id)

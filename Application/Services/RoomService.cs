@@ -27,18 +27,15 @@ public class RoomService(IRoomRepository repository):IRoomService
     {
         var patch = await _repository.PatchRoomAsync(room);
         return patch == true
-        ? new ApiResponse<bool>(HttpStatusCode.OK, "Room updated!", patch)
+        ? new ApiResponse<bool>(HttpStatusCode.OK, "Room deactivated!", patch)
         : new ApiResponse<bool>(HttpStatusCode.NotFound, "Room is not found!", false);
-
     }
 
     public async Task<ApiResponse<bool>> UpdateRoomAsync(Room room)
     {
         var update = await _repository.UpdateRoomAsync(room);
         return update == true
-        ? new ApiResponse<bool>(HttpStatusCode.OK, " Room updated!", update)
+        ? new ApiResponse<bool>(HttpStatusCode.OK, "Room updated!", update)
         : new ApiResponse<bool>(HttpStatusCode.NotFound, "Room is not found!", false);
-
     }
-
 }

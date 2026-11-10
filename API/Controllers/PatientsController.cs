@@ -29,13 +29,13 @@ public class PatientsController(IPatientService service) : ControllerBase
         return await _service.AddPatientAsync(patient);
     }
 
-    [HttpPut]
+    [HttpPut("{id:int}")]
     public async Task<ApiResponse<bool>> UpdatePatient(Patient patient)
     {
         return await _service.UpdatePatientAsync(patient);
     }
 
-    [HttpPatch]
+    [HttpPatch("{id:int}/deactivate")]
     public async Task<ApiResponse<bool>> PatchPatient(Patient patient)
     {
         return await _service.PatchPatientAsync(patient);

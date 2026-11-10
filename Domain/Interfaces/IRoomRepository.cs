@@ -8,5 +8,4 @@ public interface IRoomRepository
     Task<bool> UpdateRoomAsync(Room room);
     Task<bool> PatchRoomAsync(Room room);
     Task<List<Room>> GetRoomsAsync();
-
 }

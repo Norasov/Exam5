@@ -35,7 +35,7 @@ public class DoctorService(IDoctorRepository repository) : IDoctorService
     {
         var patch = await _repository.PatchDoctorAsync(doctor);
         return patch == true
-        ? new ApiResponse<bool>(HttpStatusCode.OK, "Doctor updated!", patch)
+        ? new ApiResponse<bool>(HttpStatusCode.OK, "Doctor deactivated!", patch)
         : new ApiResponse<bool>(HttpStatusCode.NotFound, "Doctor is not found!", false);
 
     }
@@ -46,6 +46,5 @@ public class DoctorService(IDoctorRepository repository) : IDoctorService
         return update == true
         ? new ApiResponse<bool>(HttpStatusCode.OK, " Doctor updated!", update)
         : new ApiResponse<bool>(HttpStatusCode.NotFound, "Doctor is not found!", false);
-
     }
 }
