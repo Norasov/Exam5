@@ -1,6 +1,6 @@
+using API.Extensions;
+using Application.DTOs.Patients;
 using Application.Interfaces;
-using Application.Responses;
-using Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -12,32 +12,37 @@ public class PatientsController(IPatientService service) : ControllerBase
     private readonly IPatientService _service = service;
 
     [HttpGet]
-    public async Task<ApiResponse<List<Patient>>> GetPatients()
+    public async Task<IActionResult> GetPatients()
     {
-        return await _service.GetPatientsAsync();
+        var patients = await _service.GetPatientsAsync();
+        return this.ToActionResult(patients);
     }
 
     [HttpGet("{id:int}")]
-    public async Task<ApiResponse<Patient?>> GetPatient(int id)
+    public async Task<IActionResult> GetPatient(int id)
     {
-        return await _service.GetPatientAsync(id);
+        var patient = await _service.GetPatientAsync(id);
+        return this.ToActionResult(patient);
     }
 
     [HttpPost]
-    public async Task<ApiResponse<bool>> AddPatient(Patient patient)
+    public async Task<IActionResult> AddPatient(PatientDTO patientDTO)
     {
-        return await _service.AddPatientAsync(patient);
+        var add = await _service.AddPatientAsync(patientDTO);
+        return this.ToActionResult(add);
     }
 
     [HttpPut("{id:int}")]
-    public async Task<ApiResponse<bool>> UpdatePatient(Patient patient)
+    public async Task<IActionResult> UpdatePatient(PatientDTO patientDTO, int id)
     {
-        return await _service.UpdatePatientAsync(patient);
+        var update = await _service.UpdatePatientAsync(patientDTO, id);
+        return this.ToActionResult(update);
     }
 
     [HttpPatch("{id:int}/deactivate")]
-    public async Task<ApiResponse<bool>> PatchPatient(Patient patient)
+    public async Task<IActionResult> PatchPatient(DeactivatePatientDTO patientDTO, int id)
     {
-        return await _service.PatchPatientAsync(patient);
+        var deactivate = await _service.PatchPatientAsync(patientDTO, id);
+        return this.ToActionResult(deactivate);
     }
 }

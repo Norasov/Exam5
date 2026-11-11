@@ -1,13 +1,13 @@
-using Application.Responses;
-using Domain.Models;
+using Application.DTOs.Patients;
+using Application.HttpStatusCodes;
 
 namespace Application.Interfaces;
 
 public interface IPatientService
 {
-    Task<ApiResponse<bool>> AddPatientAsync(Patient patient);
-    Task<ApiResponse<bool>> UpdatePatientAsync(Patient patient);
-    Task<ApiResponse<bool>> PatchPatientAsync(Patient patient);
-    Task<ApiResponse<List<Patient>>> GetPatientsAsync();
-    Task<ApiResponse<Patient?>> GetPatientAsync(int id);
+    Task<ServiceStatusCodes<bool>> AddPatientAsync(PatientDTO patientDTO);
+    Task<ServiceStatusCodes<bool>> UpdatePatientAsync(PatientDTO patientDTO, int id);
+    Task<ServiceStatusCodes<bool>> PatchPatientAsync(DeactivatePatientDTO patientDTO, int id);
+    Task<ServiceStatusCodes<List<PatientDTO>>> GetPatientsAsync();
+    Task<ServiceStatusCodes<PatientDTO>> GetPatientAsync(int id);
 }

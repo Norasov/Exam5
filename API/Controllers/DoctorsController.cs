@@ -1,6 +1,6 @@
+using API.Extensions;
+using Application.DTOs.Doctors;
 using Application.Interfaces;
-using Application.Responses;
-using Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -12,33 +12,37 @@ public class DoctorsController(IDoctorService service) : ControllerBase
     private readonly IDoctorService _service = service;
         
     [HttpGet]
-    public async Task<ApiResponse<List<Doctor>>> GetDoctors()
+    public async Task<IActionResult> GetDoctors()
     {
-        return await _service.GetDoctorsAsync();
+        var doctors = await _service.GetDoctorsAsync();
+        return this.ToActionResult(doctors);
     }
 
     [HttpGet("{id:int}")]
-    public async Task<ApiResponse<Doctor?>> GetDoctor(int id)
+    public async Task<IActionResult> GetDoctor(int id)
     {
-        return await _service.GetDoctorAsync(id);
+        var doctor = await _service.GetDoctorAsync(id);
+        return this.ToActionResult(doctor);
     }
 
     [HttpPost]
-    public async Task<ApiResponse<bool>> AddDoctor(Doctor doctor)
+    public async Task<IActionResult> AddDoctor(DoctorDTO doctorDTO)
     {
-        return await _service.AddDoctorAsync(doctor);
+        var add = await _service.AddDoctorAsync(doctorDTO);
+        return this.ToActionResult(add);
     }
 
     [HttpPut("{id:int}")]
-    public async Task<ApiResponse<bool>> UpdatePatient(Doctor doctor)
+    public async Task<IActionResult> UpdatePatient(DoctorDTO doctorDTO, int id)
     {
-        return await _service.UpdateDoctorAsync(doctor);
+        var update = await _service.UpdateDoctorAsync(doctorDTO, id);
+        return this.ToActionResult(update);
     }
 
     [HttpPatch("{id:int}/deactivate")]
-    public async Task<ApiResponse<bool>> PatchPatient(Doctor doctor)
+    public async Task<IActionResult> PatchPatient(DeactivateDoctorDTO doctorDTO, int id)
     {
-        return await _service.PatchDoctorAsync(doctor);
+        var patch = await _service.PatchDoctorAsync(doctorDTO, id);
+        return this.ToActionResult(patch);
     }
-
 }

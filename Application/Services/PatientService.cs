@@ -1,6 +1,8 @@
 using System.Net;
+using System.Runtime.CompilerServices;
+using Application.DTOs.Patients;
+using Application.HttpStatusCodes;
 using Application.Interfaces;
-using Application.Responses;
 using Domain.Interfaces;
 using Domain.Models;
 
@@ -9,41 +11,102 @@ namespace Application.Services;
 public class PatientService(IPatientRepository repository) : IPatientService
 {
     private readonly IPatientRepository _repository = repository;
-    public async Task<ApiResponse<bool>> AddPatientAsync(Patient patient)
+    public async Task<ServiceStatusCodes<bool>> AddPatientAsync(PatientDTO patientDTO)
     {
+        if (string.IsNullOrWhiteSpace(patientDTO.FullName))
+            return ServiceStatusCodes<bool>.BadRequest("Вам необходимо написать полное имя пациена.");
+
+        if (string.IsNullOrWhiteSpace(patientDTO.Phone))
+            return ServiceStatusCodes<bool>.BadRequest("Вам необходимо заполнить номер телефона.");
+        
+        Patient patient = new()
+        {
+            FullName = patientDTO.FullName,
+            Phone = patientDTO.Phone,
+            BirthDate = patientDTO.BirthDate
+        };
         var add = await _repository.AddPatientAsync(patient);
-        return add == true
-        ? new ApiResponse<bool>(HttpStatusCode.Created, "Added!", true)
-        : new ApiResponse<bool>(HttpStatusCode.InternalServerError, "Not added!", false);
+
+        if(!add)
+            return ServiceStatusCodes<bool>.BadRequest("Не удалось добавить.");
+
+        return ServiceStatusCodes<bool>.Created(add);
     }
 
-    public async Task<ApiResponse<Patient?>> GetPatientAsync(int id)
+    public async Task<ServiceStatusCodes<PatientDTO>> GetPatientAsync(int id)
     {
         var patient = await _repository.GetPatientAsync(id);
-        return patient != null
-        ? new ApiResponse<Patient?>(HttpStatusCode.OK, "Patient with id", patient)
-        : new ApiResponse<Patient?>(HttpStatusCode.NotFound, "Patient is not found");
+        if (patient is null)
+            return ServiceStatusCodes<PatientDTO>.NotFound("Нет пациента с таким идентификатором.");
+
+        PatientDTO patientDTO = new()
+        {
+            FullName = patient.FullName,
+            Phone = patient.Phone,
+            BirthDate = patient.BirthDate,
+            IsActive = patient.IsActive
+        };
+
+        return ServiceStatusCodes<PatientDTO>.Ok(patientDTO);
     }
 
-    public async Task<ApiResponse<List<Patient>>> GetPatientsAsync()
+    public async Task<ServiceStatusCodes<List<PatientDTO>>> GetPatientsAsync()
     {
         var patients = await _repository.GetPatientsAsync();
-        return new ApiResponse<List<Patient>>(HttpStatusCode.OK, "information of patients", patients);
+        List<PatientDTO> patientDTOs = [];
+        foreach (var patient in patients)
+        {
+            PatientDTO patientDTO = new()
+            {
+                FullName = patient.FullName,
+                Phone = patient.Phone,
+                BirthDate = patient.BirthDate,
+                IsActive = patient.IsActive
+            };
+            patientDTOs.Add(patientDTO);
+        }
+
+        return ServiceStatusCodes<List<PatientDTO>>.Ok(patientDTOs);
     }
 
-    public async Task<ApiResponse<bool>> PatchPatientAsync(Patient patient)
+    public async Task<ServiceStatusCodes<bool>> PatchPatientAsync(DeactivatePatientDTO patientDTO, int id)
     {
-        var patch = await _repository.PatchPatientAsync(patient);
-        return patch == true
-        ? new ApiResponse<bool>(HttpStatusCode.OK, "Patient deactivated!", patch)
-        : new ApiResponse<bool>(HttpStatusCode.NotFound, "Patient is not found!", false);
+        var patch = await _repository.GetPatientAsync(id);
+        if (patch is null)
+            return ServiceStatusCodes<bool>.NotFound("Нет пациента с таким идентификатором.");
+
+        patch.IsActive = patientDTO.IsActive;
+
+        var updated = await _repository.PatchPatientAsync(patch);
+        if (!updated)
+            return ServiceStatusCodes<bool>.BadRequest("Не удалось обновить.");
+
+        return ServiceStatusCodes<bool>.Ok(updated);
     }
 
-    public async Task<ApiResponse<bool>> UpdatePatientAsync(Patient patient)
+    public async Task<ServiceStatusCodes<bool>> UpdatePatientAsync(PatientDTO patientDTO, int id)
     {
-        var update = await _repository.UpdatePatientAsync(patient);
-        return update == true
-        ? new ApiResponse<bool>(HttpStatusCode.OK, " Patient updated!", update)
-        : new ApiResponse<bool>(HttpStatusCode.NotFound, "Patient is not found!", false);
+        var update = await _repository.GetPatientAsync(id);
+
+        if (update is null)
+            return ServiceStatusCodes<bool>.NotFound("Нет пациента с таким идентификатором.");
+
+
+        if (string.IsNullOrWhiteSpace(patientDTO.FullName))
+            return ServiceStatusCodes<bool>.BadRequest("Вам необходимо написать полное имя пациента.");
+
+        if (string.IsNullOrWhiteSpace(patientDTO.Phone))
+            return ServiceStatusCodes<bool>.BadRequest("Вам необходимо заполнить номер телефона.");
+
+        update.FullName = patientDTO.FullName;
+        update.Phone = patientDTO.Phone;
+        update.BirthDate = patientDTO.BirthDate;
+
+        var updated = await _repository.UpdatePatientAsync(update);
+
+        if (!updated)
+            return ServiceStatusCodes<bool>.BadRequest("Не удалось обновить.");
+
+        return ServiceStatusCodes<bool>.Ok(updated);
     }
 }

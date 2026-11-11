@@ -43,7 +43,7 @@ public class PatientRepository(AppDbContext context) : IPatientRepository
     public async Task<bool> PatchPatientAsync(Patient patient)
     {
         using var connection = _context.Connection();
-        var query = @"update patients set isactive = false where id = @id";
+        var query = @"update patients set isactive = @isactive where id = @id";
 
         var patch = await connection.ExecuteAsync(query, patient);
         return patch > 0;

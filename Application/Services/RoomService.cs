@@ -1,41 +1,99 @@
-using System.Net;
+using Application.DTOs.Rooms;
+using Application.HttpStatusCodes;
 using Application.Interfaces;
-using Application.Responses;
 using Domain.Interfaces;
 using Domain.Models;
 
 namespace Application.Services;
 
-public class RoomService(IRoomRepository repository):IRoomService
+public class RoomService(IRoomRepository repository) : IRoomService
 {
     private readonly IRoomRepository _repository = repository;
-    public async Task<ApiResponse<bool>> AddRoomAsync(Room room)
+    public async Task<ServiceStatusCodes<bool>> AddRoomAsync(RoomDTO roomDTO)
     {
+        if (string.IsNullOrWhiteSpace(roomDTO.Name))
+            return ServiceStatusCodes<bool>.BadRequest("Необходимо заполнить название палаты.");
+
+        Room room = new()
+        {
+            Name = roomDTO.Name
+        };
+
         var add = await _repository.AddRoomAsync(room);
-        return add == true
-        ? new ApiResponse<bool>(HttpStatusCode.Created, "Added!", true)
-        : new ApiResponse<bool>(HttpStatusCode.InternalServerError, "Not added!", false);
+
+        if (!add)
+            return ServiceStatusCodes<bool>.BadRequest("Не удалосӣ добавить.");
+
+        return ServiceStatusCodes<bool>.Created(add);
     }
 
-    public async Task<ApiResponse<List<Room>>> GetRoomsAsync()
+    public async Task<ServiceStatusCodes<RoomDTO>> GetRoomAsync(int id)
+    {
+        var room = await _repository.GetRoomAsync(id);
+        if (room is null)
+            return ServiceStatusCodes<RoomDTO>.NotFound("Нет палаты с таким идентификатором.");
+
+        RoomDTO roomDTO = new()
+        {
+            Name = room.Name,
+            IsActive = room.IsActive
+        };
+
+        return ServiceStatusCodes<RoomDTO>.Ok(roomDTO);
+    }
+
+
+    public async Task<ServiceStatusCodes<List<RoomDTO>>> GetRoomsAsync()
     {
         var rooms = await _repository.GetRoomsAsync();
-        return new ApiResponse<List<Room>>(HttpStatusCode.OK, "information of rooms", rooms);
+        List<RoomDTO> roomDTOs = [];
+        foreach (var room in rooms)
+        {
+            RoomDTO roomDTO = new()
+            {
+                Name = room.Name,
+                IsActive = room.IsActive
+            };
+            roomDTOs.Add(roomDTO);
+        }
+
+        return ServiceStatusCodes<List<RoomDTO>>.Ok(roomDTOs);
     }
 
-    public async Task<ApiResponse<bool>> PatchRoomAsync(Room room)
+    public async Task<ServiceStatusCodes<bool>> PatchRoomAsync(DeactivateRoomDTO roomDTO, int id)
     {
-        var patch = await _repository.PatchRoomAsync(room);
-        return patch == true
-        ? new ApiResponse<bool>(HttpStatusCode.OK, "Room deactivated!", patch)
-        : new ApiResponse<bool>(HttpStatusCode.NotFound, "Room is not found!", false);
+        var patch = await _repository.GetRoomAsync(id);
+
+        if (patch is null)
+            return ServiceStatusCodes<bool>.NotFound("Не палаты с таким идентификатором.");
+
+        patch.IsActive = roomDTO.IsActive;
+
+        var updated = await _repository.PatchRoomAsync(patch);
+
+        if (!updated)
+            return ServiceStatusCodes<bool>.BadRequest("Не удалось обновить.");
+
+        return ServiceStatusCodes<bool>.Ok(true);
     }
 
-    public async Task<ApiResponse<bool>> UpdateRoomAsync(Room room)
+    public async Task<ServiceStatusCodes<bool>> UpdateRoomAsync(RoomDTO roomDTO, int id)
     {
-        var update = await _repository.UpdateRoomAsync(room);
-        return update == true
-        ? new ApiResponse<bool>(HttpStatusCode.OK, "Room updated!", update)
-        : new ApiResponse<bool>(HttpStatusCode.NotFound, "Room is not found!", false);
+        var update = await _repository.GetRoomAsync(id);
+
+        if (update is null)
+            return ServiceStatusCodes<bool>.NotFound("Нет палаты с таким идентификатором.");
+
+        if(string.IsNullOrWhiteSpace(roomDTO.Name))
+            return ServiceStatusCodes<bool>.BadRequest("Необходимо заполнить название палаты.");
+
+        update.Name = roomDTO.Name;
+
+        var updated = await _repository.UpdateRoomAsync(update);
+
+        if (!updated)
+            return ServiceStatusCodes<bool>.BadRequest("Нет удалось обновить.");
+
+        return ServiceStatusCodes<bool>.Ok(true);
     }
 }

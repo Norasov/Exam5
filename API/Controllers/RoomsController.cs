@@ -1,6 +1,6 @@
+using API.Extensions;
+using Application.DTOs.Rooms;
 using Application.Interfaces;
-using Application.Responses;
-using Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -12,26 +12,37 @@ public class RoomsController(IRoomService service) : ControllerBase
     private readonly IRoomService _service = service;
 
     [HttpGet]
-    public async Task<ApiResponse<List<Room>>> GetRooms()
+    public async Task<IActionResult> GetRooms()
     {
-        return await _service.GetRoomsAsync();
+        var rooms = await _service.GetRoomsAsync();
+        return this.ToActionResult(rooms);
+    }
+
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetRoom(int id)
+    {
+        var room = await _service.GetRoomAsync(id);
+        return this.ToActionResult(room);
     }
 
     [HttpPost]
-    public async Task<ApiResponse<bool>> AddRoom(Room room)
+    public async Task<IActionResult> AddRoom(RoomDTO roomDTO)
     {
-        return await _service.AddRoomAsync(room);
+        var add = await _service.AddRoomAsync(roomDTO);
+        return this.ToActionResult(add);
     }
 
     [HttpPut("{id:int}")]
-    public async Task<ApiResponse<bool>> UpdateRoom(Room room)
+    public async Task<IActionResult> UpdateRoom(RoomDTO roomDTO, int id)
     {
-        return await _service.UpdateRoomAsync(room);
+        var update = await _service.UpdateRoomAsync(roomDTO, id);
+        return this.ToActionResult(update);
     }
 
     [HttpPatch("{id:int}/deactivate")]
-    public async Task<ApiResponse<bool>> PatchRoom(Room room)
+    public async Task<IActionResult> PatchRoom(DeactivateRoomDTO roomDTO, int id)
     {
-        return await _service.PatchRoomAsync(room);
+        var deactivate = await _service.PatchRoomAsync(roomDTO, id);
+        return this.ToActionResult(deactivate);
     }
 }
