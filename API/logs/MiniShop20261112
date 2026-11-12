@@ -1,0 +1,5 @@
+2026-11-12 15:19:04.988 +05:00 [WRN] Failed to determine the https port for redirect.
+2026-11-12 15:19:16.459 +05:00 [INF] Request received: GET /api/Doctors
+2026-11-12 15:19:17.322 +05:00 [INF] Request received: GET /api/Doctors
+2026-11-12 15:19:44.195 +05:00 [INF] Request received: POST /api/Doctors
+2026-11-12 15:19:44.239 +05:00 [INF] Response sent: POST /api/Doctors
