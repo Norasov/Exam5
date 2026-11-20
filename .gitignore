@@ -1,3 +1,77 @@
-bin/
-obj/
+## Сборка
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Ll]og/
+[Ll]ogs/
+*.log
+
+## Visual Studio
 .vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+*.rsuser
+*.vsidx
+*.mdf
+*.ldf
+
+## Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+## JetBrains Rider
+.idea/
+*.sln.iml
+
+## NuGet
+*.nupkg
+*.snupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## Тесты и покрытие
+TestResults/
+[Tt]est[Rr]esult*/
+*.trx
+coverage*.json
+coverage*.xml
+*.coverage
+*.coveragexml
+
+## Публикация
+publish/
+PublishScripts/
+*.pubxml
+*.publishproj
+
+## Секреты и локальные настройки
+secrets.json
+appsettings.Local.json
+appsettings.*.local.json
+.env
+.env.*
+!.env.example
+
+## Файлы ОС
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+## Прочее
+*.swp
+*~
+*.bak
+*.tmp

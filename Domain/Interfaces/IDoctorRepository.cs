@@ -9,5 +9,4 @@ public interface IDoctorRepository
     Task<bool> PatchDoctorAsync(Doctor doctor);
     Task<List<Doctor>> GetDoctorsAsync();
     Task<Doctor?> GetDoctorAsync(int id);
-
 }

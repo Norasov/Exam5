@@ -1,7 +1,7 @@
-using Dapper;
 using Domain.Interfaces;
 using Domain.Models;
 using Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories;
 
@@ -10,49 +10,31 @@ public class RoomRepository(AppDbContext context):IRoomRepository
     private readonly AppDbContext _context = context;
     public async Task<bool> AddRoomAsync(Room room)
     {
-        using var connection = _context.Connection();
-        var query = @"insert into rooms(name, isactive) values
-        (@name, @isactive)";
-        var addRoom = await connection.ExecuteAsync(query, room);
-        return addRoom > 0;
+        _context.Rooms.Add(room);
+        return await _context.SaveChangesAsync()>0;
     }
 
     public async Task<Room?> GetRoomAsync(int id)
     {
-        using var connection = _context.Connection();
-        var query = "select * from rooms where id = @id";
-        return await connection.QueryFirstOrDefaultAsync<Room>(query, new{id});
+        return await _context.Rooms.FindAsync(id);
     }
 
 
     public async Task<List<Room>> GetRoomsAsync()
     {
-        using var connection = _context.Connection();
-        var query = "select * from rooms";
-        var rooms = await connection.QueryAsync<Room>(query);
-        return rooms.ToList();
+        return await _context.Rooms.AsNoTracking().ToListAsync();
     }
 
     public async Task<bool> PatchRoomAsync(Room room)
     {
-        using var connection = _context.Connection();
-        var query = @"update rooms set isactive = @isactive
-        where id = @id";
-
-        var patch = await connection.ExecuteAsync(query, room);
-        return patch > 0;
+        _context.Entry(room).Property(r => r.IsActive).IsModified = true;
+        return await _context.SaveChangesAsync()>0;
     }
 
     public async Task<bool> UpdateRoomAsync(Room room)
     {
-        using var connection = _context.Connection();
-        var query = @"update rooms set
-        name = @name,
-        isactive = @isactive
-        where id = @id";
-
-        var update = await connection.ExecuteAsync(query, room);
-        return update > 0;
+        _context.Rooms.Update(room);
+        return await _context.SaveChangesAsync()>0;
     }
 
 }

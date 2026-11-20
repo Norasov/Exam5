@@ -1,7 +1,7 @@
-using Dapper;
 using Domain.Interfaces;
 using Domain.Models;
 using Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories;
 
@@ -10,48 +10,30 @@ public class DoctorRepository(AppDbContext context) : IDoctorRepository
     private readonly AppDbContext _context = context;
     public async Task<bool> AddDoctorAsync(Doctor doctor)
     {
-        using var connection = _context.Connection();
-        var query = @"insert into doctors(fullname, specialty, isactive, hiredat) values
-        (@fullname, @specialty, @isactive, @hiredat)";
-        var addDoctor = await connection.ExecuteAsync(query, doctor);
-        return addDoctor > 0;
+        _context.Doctors.Add(doctor);
+        var create = await _context.SaveChangesAsync();
+        return create > 0;
     }
 
     public async Task<Doctor?> GetDoctorAsync(int id)
     {
-        using var connection = _context.Connection();
-        var query = "select * from doctors where id = @id";
-        return await connection.QueryFirstOrDefaultAsync<Doctor>(query, new { id });
+        return await _context.Doctors.FindAsync(id);
     }
 
     public async Task<List<Doctor>> GetDoctorsAsync()
     {
-        using var connection = _context.Connection();
-        var query = "select * from doctors";
-        var doctors = await connection.QueryAsync<Doctor>(query);
-        return doctors.ToList();
+        return await _context.Doctors.AsNoTracking().ToListAsync();
     }
 
     public async Task<bool> PatchDoctorAsync(Doctor doctor)
     {
-        using var connection = _context.Connection();
-        var query = @"update doctors set isactive = @isactive where id = @id";
-
-        var patch = await connection.ExecuteAsync(query, doctor);
-        return patch > 0;
+        _context.Entry(doctor).Property(d => d.IsActive).IsModified = true;
+        return await _context.SaveChangesAsync() > 0;
     }
 
     public async Task<bool> UpdateDoctorAsync(Doctor doctor)
     {
-        using var connection = _context.Connection();
-        var query = @"update doctors set
-        fullname = @fullname,
-        specialty = @specialty,
-        isactive = @isactive,
-        hiredat = @hiredat
-        where id = @id";
-
-        var update = await connection.ExecuteAsync(query, doctor);
-        return update > 0;
+        _context.Doctors.Update(doctor);
+        return await _context.SaveChangesAsync() > 0;
     }
 }
