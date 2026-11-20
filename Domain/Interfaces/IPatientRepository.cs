@@ -9,4 +9,5 @@ public interface IPatientRepository
     Task<bool> PatchPatientAsync(Patient patient);
     Task<List<Patient>> GetPatientsAsync();
     Task<Patient?> GetPatientAsync(int id);
+    Task<bool> PhoneExistsAsync(string phone, int? excludeId = null);
 }

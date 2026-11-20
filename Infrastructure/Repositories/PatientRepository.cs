@@ -11,7 +11,7 @@ public class PatientRepository(AppDbContext context) : IPatientRepository
     public async Task<bool> AddPatientAsync(Patient patient)
     {
         _context.Patients.Add(patient);
-        return await _context.SaveChangesAsync()>0;
+        return await _context.SaveChangesAsync() > 0;
     }
 
     public async Task<Patient?> GetPatientAsync(int id)
@@ -28,6 +28,12 @@ public class PatientRepository(AppDbContext context) : IPatientRepository
     {
         _context.Entry(patient).Property(p => p.IsActive).IsModified = true;
         return await _context.SaveChangesAsync() > 0;
+    }
+
+    public async Task<bool> PhoneExistsAsync(string phone, int? excludeId = null)
+    {
+        return await _context.Patients
+        .AnyAsync(p => p.Phone == phone && (excludeId == null || p.Id != excludeId));
     }
 
     public async Task<bool> UpdatePatientAsync(Patient patient)

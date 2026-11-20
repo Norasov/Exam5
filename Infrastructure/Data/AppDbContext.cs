@@ -33,9 +33,12 @@ public class AppDbContext : DbContext
             }
         }
 
+        modelBuilder.Entity<Patient>().HasIndex(x=>x.Phone).IsUnique();
+
         modelBuilder.Entity<Doctor>().Property(x => x.IsActive).HasDefaultValue(true);
         modelBuilder.Entity<Patient>().Property(x => x.IsActive).HasDefaultValue(true);
         modelBuilder.Entity<Room>().Property(x => x.IsActive).HasDefaultValue(true);
         modelBuilder.Entity<Patient>().Property(x => x.CreatedAt).HasDefaultValueSql("now()");
+
     }
 }

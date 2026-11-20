@@ -19,7 +19,6 @@ public class RoomRepository(AppDbContext context):IRoomRepository
         return await _context.Rooms.FindAsync(id);
     }
 
-
     public async Task<List<Room>> GetRoomsAsync()
     {
         return await _context.Rooms.AsNoTracking().ToListAsync();

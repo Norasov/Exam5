@@ -1,5 +1,3 @@
-using System.Net;
-using System.Runtime.CompilerServices;
 using Application.DTOs.Patients;
 using Application.HttpStatusCodes;
 using Application.Interfaces;
@@ -18,7 +16,10 @@ public class PatientService(IPatientRepository repository) : IPatientService
 
         if (string.IsNullOrWhiteSpace(patientDTO.Phone))
             return ServiceStatusCodes<bool>.BadRequest("Вам необходимо заполнить номер телефона.");
-        
+
+        if (await _repository.PhoneExistsAsync(patientDTO.Phone))
+            return ServiceStatusCodes<bool>.Conflict("Пациент c таким номером телефона уже существует.");
+
         Patient patient = new()
         {
             FullName = patientDTO.FullName,
@@ -27,7 +28,7 @@ public class PatientService(IPatientRepository repository) : IPatientService
         };
         var add = await _repository.AddPatientAsync(patient);
 
-        if(!add)
+        if (!add)
             return ServiceStatusCodes<bool>.BadRequest("Не удалось добавить.");
 
         return ServiceStatusCodes<bool>.Created(add);
@@ -97,6 +98,9 @@ public class PatientService(IPatientRepository repository) : IPatientService
 
         if (string.IsNullOrWhiteSpace(patientDTO.Phone))
             return ServiceStatusCodes<bool>.BadRequest("Вам необходимо заполнить номер телефона.");
+
+        if (await _repository.PhoneExistsAsync(patientDTO.Phone, id))
+            return ServiceStatusCodes<bool>.Conflict("Пациент c таким номером телефона уже существует.");
 
         update.FullName = patientDTO.FullName;
         update.Phone = patientDTO.Phone;
